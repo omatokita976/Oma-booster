@@ -1,0 +1,9 @@
+@tailwind base; @tailwind components; @tailwind utilities;
+body { @apply bg-ink text-white antialiased; background-image: radial-gradient(60rem 30rem at 50% -10%, rgba(139,45,255,.22), transparent), radial-gradient(40rem 20rem at 100% 10%, rgba(25,184,255,.12), transparent); }
+.card { @apply rounded-2xl border border-line bg-panel/80 p-5 transition hover:border-volt/60 hover:shadow-glow; }
+.btn { @apply inline-flex items-center justify-center rounded-xl px-5 py-3 font-semibold transition active:scale-95; }
+.btn-primary { @apply btn bg-gradient-to-r from-volt to-neon text-white hover:shadow-glow; }
+.btn-ghost { @apply btn border border-line hover:border-neon/70; }
+.input { @apply w-full rounded-xl border border-line bg-ink px-4 py-3 outline-none focus:border-neon; }
+@media (prefers-reduced-motion: no-preference) { .rise { animation: rise .6s ease both; } }
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
