@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OMA TECH - Gestion Produits</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+    font-family:'Orbitron',sans-serif;
+    background:#0a0f1c;
+    color:white;
+    text-align:center;
+}
+header{
+    padding:25px;
+    background:#000;
+    box-shadow:0 0 20px #00f7ff;
+}
+header h1{
+    color:#00f7ff;
+    cursor:pointer;
+}
+section{
+    padding:60px 20px;
+}
+.services{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:25px;
+    margin-top:40px;
+}
+.card{
+    background:#111827;
+    padding:25px;
+    border-radius:15px;
+    width:280px;
+    box-shadow:0 0 15px rgba(0,247,255,0.4);
+}
+.price{
+    margin-top:10px;
+    font-weight:bold;
+    color:#00f7ff;
+}
+button{
+    margin-top:10px;
+    padding:8px 18px;
+    border:none;
+    background:#00f7ff;
+    border-radius:5px;
+    cursor:pointer;
+}
+button:hover{
+    background:white;
+    color:black;
+}
+.hidden{display:none}
+input{
+    display:block;
+    margin:10px auto;
+    padding:8px;
+    width:250px;
+}
+.admin-panel{
+    background:#111827;
+    padding:20px;
+    margin:20px auto;
+    width:360px;
+    border-radius:15px;
+    box-shadow:0 0 15px #00f7ff;
+    text-align:left;
+}
+.admin-panel h2{
+    text-align:center;
+}
+.admin-panel label{
+    display:block;
+    margin-top:10px;
+}
+.whatsapp-float{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    background:#25D366;
+    color:white;
+    padding:15px;
+    border-radius:50%;
+    cursor:pointer;
+    font-size:24px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1 onclick="openAdmin()">🚀 OMA TECH</h1>
+    <p>Clique 5 fois pour accéder à l’admin</p>
+</header>
+
+<section>
+    <div class="services" id="productList"></div>
+</section>
+
+<!-- ADMIN LOGIN -->
+<section id="adminLogin" class="hidden">
+    <h2>Admin Login</h2>
+    <input type="password" id="adminPass" placeholder="Mot de passe admin">
+    <button onclick="checkAdmin()">Entrer</button>
+</section>
+
+<!-- ADMIN PANEL -->
+<section id="adminPanel" class="hidden">
+    <div class="admin-panel">
+        <h2>Admin Panel</h2>
+
+        <label>Nom du produit :</label>
+        <input type="text" id="prodName" placeholder="Nom du produit">
+
+        <label>Description :</label>
+        <input type="text" id="prodDesc" placeholder="Description">
+
+        <label>Prix :</label>
+        <input type="text" id="prodPrice" placeholder="Prix (ex: 5000 FCFA/mois)">
+
+        <button onclick="addProduct()">Ajouter</button>
+        <button onclick="updateProduct()">Modifier sélectionné</button>
+        <button onclick="logoutAdmin()">Fermer</button>
+
+        <h3>Produits existants :</h3>
+        <div id="adminProducts"></div>
+    </div>
+</section>
+
+<div class="whatsapp-float" onclick="contact()">💬</div>
+
+<script>
+let adminClicks=0;
+let adminPassword="admin123";
+let phone="237620156067";
+let isAdmin=false;
+let selectedIndex=null;
+
+// Produits par défaut
+if(!localStorage.getItem("products")){
+    let defaultProducts=[
+        {name:"VPS",desc:"Serveur haute performance",price:"5 500 FCFA / mois"},
+        {name:"Bot MD",desc:"Bot WhatsApp Multi-Device",price:"1 500 FCFA / mois"},
+        {name:"Bot XMD",desc:"Bot WhatsApp X Multi-Device",price:"2 000 FCFA / mois"},
+        {name:"Panel Illimité",desc:"Gestion complète",price:"1 000 FCFA / mois"}
+    ];
+    localStorage.setItem("products",JSON.stringify(defaultProducts));
+}
+
+// Affichage produits côté client et admin
+function loadProducts(){
+    let products=JSON.parse(localStorage.getItem("products"));
+    let container=document.getElementById("productList");
+    container.innerHTML="";
+    products.forEach((p,index)=>{
+        container.innerHTML+=`
+        <div class="card">
+            <h3>${p.name}</h3>
+            <p>${p.desc}</p>
+            <div class="price">${p.price}</div>
+            <button onclick="order('${p.name} - ${p.price}')">Commander</button>
+        </div>`;
+    });
+
+    if(isAdmin){
+        let adminContainer=document.getElementById("adminProducts");
+        adminContainer.innerHTML="";
+        products.forEach((p,index)=>{
+            adminContainer.innerHTML+=`
+            <div class="card">
+                <strong>${p.name}</strong> - ${p.price} <br>
+                <em>${p.desc}</em> <br>
+                <button onclick="selectProduct(${index})">Sélectionner</button>
+                <button onclick="deleteProduct(${index})">Supprimer</button>
+            </div>`;
+        });
+    }
+}
+
+// Commander produit
+function order(service){
+    let message="Bonjour OMA TECH,%0AJe souhaite commander : "+service+"%0AMerci.";
+    window.open("https://wa.me/"+phone+"?text="+message,"_blank");
+}
+
+function contact(){
+    window.open("https://wa.me/"+phone,"_blank");
+}
+
+// Ajouter produit
+function addProduct(){
+    let name=document.getElementById("prodName").value;
+    let desc=document.getElementById("prodDesc").value;
+    let price=document.getElementById("prodPrice").value;
+
+    if(name && desc && price){
+        let products=JSON.parse(localStorage.getItem("products"));
+        products.push({name,desc,price});
+        localStorage.setItem("products",JSON.stringify(products));
+        loadProducts();
+        alert("Produit ajouté !");
+        clearInputs();
+    } else {
+        alert("Remplissez tous les champs !");
+    }
+}
+
+// Sélectionner produit pour modification
+function selectProduct(index){
+    let products=JSON.parse(localStorage.getItem("products"));
+    document.getElementById("prodName").value = products[index].name;
+    document.getElementById("prodDesc").value = products[index].desc;
+    document.getElementById("prodPrice").value = products[index].price;
+    selectedIndex=index;
+}
+
+// Modifier produit
+function updateProduct(){
+    if(selectedIndex===null){
+        alert("Sélectionnez un produit pour le modifier !");
+        return;
+    }
+    let name=document.getElementById("prodName").value;
+    let desc=document.getElementById("prodDesc").value;
+    let price=document.getElementById("prodPrice").value;
+
+    if(name && desc && price){
+        let products=JSON.parse(localStorage.getItem("products"));
+        products[selectedIndex]={name,desc,price};
+        localStorage.setItem("products",JSON.stringify(products));
+        loadProducts();
+        alert("Produit modifié !");
+        clearInputs();
+        selectedIndex=null;
+    } else {
+        alert("Remplissez tous les champs !");
+    }
+}
+
+// Supprimer produit
+function deleteProduct(index){
+    let products=JSON.parse(localStorage.getItem("products"));
+    products.splice(index,1);
+    localStorage.setItem("products",JSON.stringify(products));
+    loadProducts();
+}
+
+// Admin login
+function openAdmin(){
+    adminClicks++;
+    if(adminClicks>=5){
+        document.getElementById("adminLogin").classList.remove("hidden");
+        adminClicks=0;
+    }
+}
+
+function checkAdmin(){
+    let pass=document.getElementById("adminPass").value;
+    if(pass===adminPassword){
+        isAdmin=true;
+        document.getElementById("adminLogin").classList.add("hidden");
+        document.getElementById("adminPanel").classList.remove("hidden");
+        loadProducts();
+    }else{
+        alert("Mot de passe incorrect");
+    }
+}
+
+function logoutAdmin(){
+    isAdmin=false;
+    document.getElementById("adminPanel").classList.add("hidden");
+    selectedIndex=null;
+    loadProducts();
+}
+
+function clearInputs(){
+    document.getElementById("prodName").value="";
+    document.getElementById("prodDesc").value="";
+    document.getElementById("prodPrice").value="";
+}
+
+// Charger les produits au départ
+loadProducts();
+</script>
+
+</body>
+</html>
