@@ -11,6 +11,14 @@ export async function POST(req: Request) {
   if (!b || !["mtn_momo", "orange_money", "manual_transfer"].includes(b.method) || reference.length < 4 || reference.length > 60)
     return NextResponse.json({ error: "Méthode ou référence de transaction invalide" }, { status: 400 });
   const db = supabaseAdmin();
+  if (b.topup) { // recharge du solde : créditée seulement après confirmation admin
+    const amount = Number(b.amount);
+    if (!Number.isInteger(amount) || amount < 100 || amount > 1_000_000) return NextResponse.json({ error: "Montant entre 100 et 1 000 000 FCFA" }, { status: 400 });
+    const { count: open } = await db.from("payments").select("id", { count: "exact", head: true }).eq("user_id", user.id).is("order_id", null).eq("status", "pending");
+    if ((open ?? 0) >= 3) return NextResponse.json({ error: "Tu as déjà 3 recharges en attente de vérification" }, { status: 400 });
+    const { error: e } = await db.from("payments").insert({ user_id: user.id, method: b.method, amount, reference, payer_phone: String(b.payerPhone ?? "").slice(0, 20) || null });
+    return e ? NextResponse.json({ error: "Enregistrement impossible" }, { status: 500 }) : NextResponse.json({ ok: true });
+  }
   const { data: o } = await db.from("orders").select("id,total,status,is_free").eq("id", b.orderId).eq("user_id", user.id).maybeSingle();
   if (!o || o.status !== "pending" || o.is_free) return NextResponse.json({ error: "Commande non payable" }, { status: 400 });
   const { count } = await db.from("payments").select("id", { count: "exact", head: true }).eq("order_id", o.id).in("status", ["pending", "paid"]);
