@@ -1,2 +1,2 @@
 import { redirect } from "next/navigation";
-export default function D() { redirect("/dashboard/commandes"); }
+export default function D() { redirect("/dashboard/commander"); }
