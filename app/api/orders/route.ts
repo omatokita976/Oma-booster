@@ -35,6 +35,7 @@ export async function POST(req: Request) {
     const { error: e2 } = await db.rpc("adjust_balance", { uid: user.id, delta: -order.total, reason: `Commande ${order.public_id}`, actor: user.id });
     if (e2) { await db.from("orders").delete().eq("public_id", order.public_id); return NextResponse.json({ error: "Solde insuffisant" }, { status: 400 }); }
     await db.from("payments").insert({ user_id: user.id, order_id: order.id, method: "balance", amount: Math.max(order.total, 1), status: "paid", confirmed_at: new Date().toISOString() });
+    await db.from("orders").update({ status: "accepted" }).eq("id", order.id);
   }
   if (promoId) await db.rpc("increment_promo_use", { pid: promoId });
   return NextResponse.json({ publicId: order.public_id, total: order.total });
