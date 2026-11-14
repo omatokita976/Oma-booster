@@ -4,7 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 // CRUD admin générique, limité à une liste blanche de tables et de champs.
 type K = "s" | "n" | "n?" | "d?" | "b";
 const T: Record<string, Record<string, K>> = {
-  services: { network: "s", category: "s", name: "s", description: "s", price_per_1000: "n", min_qty: "n", max_qty: "n", eta: "s", link_hint: "s", sort_order: "n", is_active: "b" },
+  services: { network: "s", category: "s", name: "s", description: "s", price_per_1000: "n", min_qty: "n", max_qty: "n", eta: "s", link_hint: "s", sort_order: "n", is_active: "b", group_title: "s", option_label: "s" },
   promo_codes: { code: "s", percent_off: "n?", amount_off: "n?", max_uses: "n?", expires_at: "d?", is_active: "b" },
   testimonials: { author: "s", content: "s", is_published: "b" },
   site_settings: { value: "s" },
