@@ -18,7 +18,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
       if (error) { setBusy(false); return setMsg("E-mail ou mot de passe incorrect."); }
     }
     const next = new URLSearchParams(window.location.search).get("next");
-    window.location.href = next && next.startsWith("/") ? next : "/dashboard/commandes";
+    window.location.href = next && next.startsWith("/") ? next : "/dashboard/commander";
   }
   return (
     <form onSubmit={submit} className="card mx-auto mt-12 grid max-w-md gap-4">
