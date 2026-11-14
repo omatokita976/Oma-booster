@@ -8,4 +8,4 @@ export async function getSupabase() {
       setAll: (list: { name: string; value: string; options?: any }[]) => { try { list.forEach(({ name, value, options }) => store.set(name, value, options)); } catch {} },
     },
   });
-               }
+}
