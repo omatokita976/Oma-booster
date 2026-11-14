@@ -21,7 +21,7 @@ export default async function Orders({ searchParams }: { searchParams: Promise<{
       <div className="flex flex-wrap items-end justify-between gap-3"><h1 className="text-3xl font-extrabold">Bonjour {me?.full_name ?? ""}</h1>
         <div className="card !py-3">Solde : <b>{fcfa(me?.balance ?? 0)}</b></div></div>
       {banned && <p className="mt-4 rounded-xl border border-red-500/50 p-3 text-red-300">Ton compte est suspendu {me?.banned_permanent ? "définitivement" : `jusqu’au ${new Date(me!.banned_until!).toLocaleDateString("fr-FR")}`}{me?.ban_reason ? ` — ${me.ban_reason}` : ""}. Contacte le support.</p>}
-      {created && <p className="mt-4 rounded-xl border border-neon/50 p-3">Commande {created} enregistrée. Elle démarre après vérification du paiement.</p>}
+      {created && <p className="mt-4 rounded-xl border border-neon/50 p-3">Commande {created} enregistrée.</p>}
       <a href="/dashboard/paiements" className="btn-ghost mr-2 mt-4">Mes paiements</a><a href="/dashboard/support" className="btn-ghost mr-2 mt-4">Support</a><a href="/dashboard/profil" className="btn-ghost mr-2 mt-4">Profil</a>
       {me?.role === "admin" && <a href="/admin/users" className="btn-ghost mt-4">Espace administrateur</a>}
       <h2 className="mb-3 mt-8 text-xl font-bold">Mes commandes</h2>
